@@ -17,13 +17,6 @@ resource "azurerm_subnet" "public" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-resource "azurerm_subnet" "private" {
-  name                 = "snet-private"
-  resource_group_name  = azurerm_resource_group.main.name
-  virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.2.0/24"]
-}
-
 resource "azurerm_network_security_group" "main" {
   name                = "nsg-main"
   location            = azurerm_resource_group.main.location
@@ -54,17 +47,9 @@ resource "azurerm_network_security_group" "main" {
   }
 }
 
-resource "azurerm_network_interface" "main" {
-  name                = "nic-main"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.private.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.main.id
-  }
+resource "azurerm_subnet_network_security_group_association" "main" {
+  subnet_id                 = azurerm_subnet.public.id
+  network_security_group_id = azurerm_network_security_group.main.id
 }
 
 resource "azurerm_public_ip" "main" {
@@ -75,24 +60,33 @@ resource "azurerm_public_ip" "main" {
   sku                 = "Standard"
 }
 
-resource "azurerm_network_interface_security_group_association" "main" {
-  network_interface_id      = azurerm_network_interface.main.id
-  network_security_group_id = azurerm_network_security_group.main.id
+resource "azurerm_network_interface" "main" {
+  name                = "nic-main"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.public.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.main.id
+  }
 }
 
 resource "azurerm_linux_virtual_machine" "main" {
-  name                            = "vm-main"
-  resource_group_name             = azurerm_resource_group.main.name
-  location                        = azurerm_resource_group.main.location
-  size                            = "Standard_B1s"
-  admin_username                  = var.admin_username
-  admin_password                  = var.admin_password
-  disable_password_authentication = false
+  name                = "vm-main"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  size                = "Standard_B1s"
 
-  depends_on = [
-    azurerm_network_interface.main,
-    azurerm_network_interface_security_group_association.main
-  ]
+  admin_username = var.admin_username
+
+  disable_password_authentication = true
+
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = var.ssh_public_key
+  }
 
   network_interface_ids = [
     azurerm_network_interface.main.id
