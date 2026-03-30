@@ -1,126 +1,115 @@
-Azure Platform Architecture (Terraform)
-This project demonstrates a secure Azure platform architecture deployed using Terraform.
-It follows infrastructure-as-code principles and implements a jumpbox pattern for secure access to private workloads.
+# Azure Platform Architecture (Terraform)
 
-Architecture
+Secure Azure platform architecture built using Terraform.  
+Demonstrates segmented networking, jumpbox access pattern, and secure infrastructure design.
+
+---
+
+## Architecture
 VNet (10.0.0.0/16)
 │
 ├── Public Subnet (10.0.1.0/24)
-│   └── Jumpbox VM (Public IP)
+│ └── Jumpbox VM (Public IP)
 │
 └── Private Subnet (10.0.2.0/24)
-    └── Private VM (No Public IP)
-Access flow:
+└── Private VM (No Public IP)
 
+### Access Flow
 Local Machine → Jumpbox → Private VM
+
 This prevents direct internet exposure of internal workloads.
 
-Resources Deployed
-Resource Group
+---
 
-Virtual Network
+## Resources Deployed
 
-Public Subnet
+- Resource Group  
+- Virtual Network (VNet)  
+- Public Subnet  
+- Private Subnet  
+- Network Security Group (NSG)  
+- Public IP (Jumpbox only)  
+- Jumpbox Linux VM  
+- Private Linux VM (no public access)  
+- Network Interfaces  
+- SSH key authentication  
+- Terraform variables & outputs  
 
-Private Subnet
+---
 
-Network Security Group
+## Security Features
 
-Public IP (Jumpbox only)
+- No public IP on private VM  
+- SSH key authentication only  
+- NSG restricted to trusted IP  
+- Deny‑all inbound rule  
+- Public / private subnet segmentation  
+- Jumpbox access architecture  
 
-Jumpbox Linux VM
+---
 
-Private Linux VM
+## Prerequisites
 
-Network Interfaces
-
-SSH key authentication
-
-Terraform variables & tagging
-
-Security Design
-No public IP on private workload VM
-
-SSH restricted via NSG rules
-
-Key-based authentication only
-
-Deny-all inbound rule
-
-Segmented public/private subnets
-
-Jumpbox access pattern
-
-Prerequisites
-Terraform
-
-Azure CLI
-
-Azure subscription
-
-SSH key pair
+- Terraform installed  
+- Azure CLI installed  
+- Azure subscription  
+- SSH key pair  
 
 Login to Azure:
 
-az login
-Usage
-Initialize Terraform:
+---
 
-terraform init
-Plan deployment:
+## Deployment
 
-terraform plan
-Deploy:
+Initialize Terraform
 
-terraform apply
-Destroy resources:
+---
 
-terraform destroy
-Variables
-Name	Description
-location	Azure region
-resource_group_name	Resource group name
-admin_username	VM admin username
-ssh_public_key	SSH public key
-home_ip	Your public IP for SSH access
-Outputs
-Name	Description
-jumpbox_public_ip	Public IP for jumpbox VM
-Connecting
-SSH to jumpbox:
+## Variables
 
-ssh user@<jumpbox_public_ip>
-Then SSH to private VM:
+| Name | Description |
+|------|-------------|
+| location | Azure region |
+| resource_group_name | Resource group name |
+| admin_username | VM admin username |
+| ssh_public_key | SSH public key |
+| home_ip | Your public IP for SSH |
 
-ssh user@10.0.2.4
-(Private IP shown in Azure portal)
+---
 
-Skills Demonstrated
-Azure platform architecture
+## Outputs
 
-Terraform Infrastructure as Code
+| Name | Description |
+|------|-------------|
+| jumpbox_public_ip | Public IP of jumpbox VM |
 
-Secure network segmentation
+---
 
-Jumpbox access pattern
+## Connect
 
-NSG security rules
+SSH to jumpbox
 
-Azure VM provisioning
+SSH to private VM from jumpbox
 
-SSH key authentication
+---
 
-Reusable Terraform configuration
+## Skills Demonstrated
 
-Future Improvements
-Terraform remote state (Azure Storage)
+- Azure platform architecture  
+- Terraform Infrastructure as Code  
+- Network segmentation (public/private)  
+- Jumpbox access pattern  
+- NSG security rules  
+- Secure SSH configuration  
+- Azure Linux VM deployment  
+- Reusable Terraform configuration  
 
-Managed identity + RBAC
+---
 
-Log Analytics integration
+## Future Improvements
 
-Terraform modules
-
-CI/CD pipeline deployment
-
-Bastion host alternative architecture
+- Remote Terraform state (Azure Storage)  
+- Managed identity + RBAC  
+- Azure Monitor / Log Analytics  
+- Terraform modules  
+- CI/CD pipeline deployment  
